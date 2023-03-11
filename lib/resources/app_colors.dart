@@ -3,13 +3,12 @@ import 'package:flutter/painting.dart';
 class AppColors {
   const AppColors._();
 
-  static const background = Color(0xff10141e);
-  static const blue = Color(0xff00bcd4);
-  static const cardBackground = Color(0xff2C3243);
-  static const indigo = Color(0xff2C3243);
-  static const indigo75 = Color(0xbf2C3243);
-  static const red = Color(0xff961818);
-  static const grey = Color(0xff727272);
-  static const secondaryGrey = Color(0xff999999);
-  static const green = Color(0xff2aab6a);
+  static const lemon = Color(0xffffe600);
+  static const fuchsia = Color(0xffd9005d);
+  static const darkGrey = Color(0xff333333);
+
+  static final darkGrey6 =
+      Color.fromRGBO(darkGrey.red, darkGrey.green, darkGrey.blue, 0.06);
+  static final darkGrey38 =
+      Color.fromRGBO(darkGrey.red, darkGrey.green, darkGrey.blue, 0.38);
 }

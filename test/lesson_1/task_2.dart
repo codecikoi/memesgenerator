@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:memogenerator/main.dart';
+import 'package:memesgenerator/main.dart';
 
 ///
 /// 2. Снятие выделения активного текста при нажатии вне текстовых блоков.
@@ -13,7 +13,7 @@ void runTestLesson1Task2() {
   testWidgets('module2', (WidgetTester tester) async {
     print("\n------------- Запускаем тест к 2 заданию 9-го урока -------------\n");
 
-    await tester.pumpWidget(MyApp());
+    await tester.pumpWidget(const MyApp());
 
     final fabFinder = find.byType(FloatingActionButton);
 
