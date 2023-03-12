@@ -25,7 +25,7 @@ class CreateMemeBloc {
     memeTextsSubject.add(copiedList);
   }
 
-  void selectedMemeText(final String id) {
+  void selectMemeText(final String id) {
     final foundMemeText = memeTextsSubject.value
         .firstWhereOrNull((memeText) => memeText.id == id);
     selectedMemeTextSubject.add(foundMemeText);
@@ -35,7 +35,7 @@ class CreateMemeBloc {
     selectedMemeTextSubject.add(null);
   }
 
-  Stream<List<MemeText>> observeMemeText() => memeTextsSubject
+  Stream<List<MemeText>> observeMemeTexts() => memeTextsSubject
       .distinct((prev, next) => const ListEquality().equals(prev, next));
 
   Stream<MemeText?> observeSelectedMemeText() =>

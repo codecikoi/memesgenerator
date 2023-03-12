@@ -113,9 +113,9 @@ class _CreateMemePageContentState extends State<CreateMemePageContent> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Expanded(
+        const Expanded(
           flex: 2,
-          child: MemeConvasWidget(),
+          child: MemeCanvasWidget(),
         ),
         Container(
           height: 1,
@@ -129,7 +129,7 @@ class _CreateMemePageContentState extends State<CreateMemePageContent> {
             child: ListView(
               children: const [
                 SizedBox(height: 12),
-                AddNewMemeTextButton(),
+                AddNewTextButton(),
               ],
             ),
           ),
@@ -139,29 +139,151 @@ class _CreateMemePageContentState extends State<CreateMemePageContent> {
   }
 }
 
-
 class MemeCanvasWidget extends StatelessWidget {
   const MemeCanvasWidget({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-
     final bloc = Provider.of<CreateMemeBloc>(context, listen: false);
     return Container(
       color: AppColors.darkGrey38,
       padding: const EdgeInsets.all(8),
       alignment: Alignment.topCenter,
-      child: AspectRatio(aspectRatio: 1, child: Container(color: Colors.white,
-      child: StreamBuilder<List<MemeText>>(
-        initialData: const <MemeText>[],
-          stream: bloc.observeMemeTexts(),
-
-
-
-          builder: (context, snapshot)),),),
-
-    )
-    ;
+      child: AspectRatio(
+        aspectRatio: 1,
+        child: Container(
+          color: Colors.white,
+          child: StreamBuilder<List<MemeText>>(
+              initialData: const <MemeText>[],
+              stream: bloc.observeMemeTexts(),
+              builder: (context, snapshot) {
+                final memeTexts =
+                    snapshot.hasData ? snapshot.data! : const <MemeText>[];
+                return LayoutBuilder(
+                  builder: (context, constraints) {
+                    return Stack(
+                      children: memeTexts.map((memeText) {
+                        return DraggableMemeText(
+                          memeText: memeText,
+                          parentConstraints: constraints,
+                        );
+                      }).toList(),
+                    );
+                  },
+                );
+              }),
+        ),
+      ),
+    );
   }
 }
 
+class DraggableMemeText extends StatefulWidget {
+  final MemeText memeText;
+  final BoxConstraints parentConstraints;
+
+  const DraggableMemeText({
+    Key? key,
+    required this.memeText,
+    required this.parentConstraints,
+  }) : super(key: key);
+
+  @override
+  State<DraggableMemeText> createState() => _DraggableMemeTextState();
+}
+
+class _DraggableMemeTextState extends State<DraggableMemeText> {
+  double top = 0;
+  double left = 0;
+  final double padding = 8;
+
+  @override
+  Widget build(BuildContext context) {
+    final bloc = Provider.of<CreateMemeBloc>(context, listen: false);
+    return Positioned(
+      top: top,
+      left: left,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => bloc.selectMemeText(widget.memeText.id),
+        onPanUpdate: (details) {
+          setState(() {
+            left = calculateLeft(details);
+            top = calculateTop(details);
+          });
+        },
+        child: Container(
+          constraints: BoxConstraints(
+            maxWidth: widget.parentConstraints.maxWidth,
+            maxHeight: widget.parentConstraints.maxHeight,
+          ),
+          padding: EdgeInsets.all(padding),
+          color: Colors.black12,
+          child: Text(
+            widget.memeText.text,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: Colors.black,
+              fontSize: 24,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  double calculateTop(DragUpdateDetails details) {
+    final rawTop = top + details.delta.dy;
+    if (rawTop < 0) {
+      return 0;
+    }
+    if (rawTop > widget.parentConstraints.maxHeight - padding * 2 - 30) {
+      return widget.parentConstraints.maxHeight - padding * 2 - 30;
+    }
+    return rawTop;
+  }
+
+  double calculateLeft(DragUpdateDetails details) {
+    final rawLeft = left + details.delta.dx;
+    if (rawLeft < 0) {
+      return 0;
+    }
+    if (rawLeft > widget.parentConstraints.maxWidth - padding * 2 - 10) {
+      return widget.parentConstraints.maxWidth - padding * 2 - 10;
+    }
+    return rawLeft;
+  }
+}
+
+class AddNewTextButton extends StatelessWidget {
+  const AddNewTextButton({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final bloc = Provider.of<CreateMemeBloc>(context, listen: false);
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => bloc.addNewText(),
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.add, color: AppColors.fuchsia),
+              const SizedBox(width: 8),
+              Text(
+                'Add text'.toUpperCase(),
+                style: const TextStyle(
+                  color: AppColors.fuchsia,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
