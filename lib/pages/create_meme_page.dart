@@ -125,7 +125,6 @@ class CreateMemePageContent extends StatefulWidget {
 class _CreateMemePageContentState extends State<CreateMemePageContent> {
   @override
   Widget build(BuildContext context) {
-    final bloc = Provider.of<CreateMemeBloc>(context, listen: false);
     return Column(
       children: [
         const Expanded(
@@ -137,51 +136,89 @@ class _CreateMemePageContentState extends State<CreateMemePageContent> {
           width: double.infinity,
           color: AppColors.darkGrey,
         ),
-        Expanded(
+        const Expanded(
           flex: 1,
-          child: Container(
-            color: Colors.white,
-            child: StreamBuilder<List<MemeText>>(
-              stream: bloc.observeMemeTexts(),
-              initialData: const <MemeText>[],
-              builder: (context, snapshot) {
-                final items = snapshot.hasData ? snapshot.data! : <MemeText>[];
-                return ListView.separated(
-                  itemCount: items.length + 1,
-                  itemBuilder: (BuildContext context, int index) {
-                    if (index == 0) {
-                      return const AddNewTextButton();
-                    }
-                    final item = items[index - 1];
-                    return Container(
-                      height: 48,
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        item.text,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: AppColors.darkGrey,
-                        ),
-                      ),
-                    );
-                  },
-                  separatorBuilder: (BuildContext context, int index) {
-                    if (index == 0) {
-                      return const SizedBox.shrink();
-                    }
-                    return Container(
-                      margin: const EdgeInsets.only(left: 16),
-                      height: 1,
-                      color: AppColors.darkGrey,
-                    );
-                  },
-                );
-              },
-            ),
-          ),
+          child: BottomList(),
         ),
       ],
+    );
+  }
+}
+
+class BottomList extends StatelessWidget {
+  const BottomList({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final bloc = Provider.of<CreateMemeBloc>(context, listen: false);
+
+    return Container(
+      color: Colors.white,
+      child: StreamBuilder<List<MemeTextWithSelection>>(
+        stream: bloc.observeMemeTextsWithSelection(),
+        initialData: const <MemeTextWithSelection>[],
+        builder: (context, snapshot) {
+          final items =
+              snapshot.hasData ? snapshot.data! : <MemeTextWithSelection>[];
+          return ListView.separated(
+            itemCount: items.length + 1,
+            itemBuilder: (BuildContext context, int index) {
+              if (index == 0) {
+                return const AddNewTextButton();
+              }
+              final item = items[index - 1];
+              return BottomMemeText(item: item);
+            },
+            separatorBuilder: (BuildContext context, int index) {
+              if (index == 0) {
+                return const SizedBox.shrink();
+              }
+              return const BottomSeparator();
+            },
+          );
+        },
+      ),
+    );
+  }
+}
+
+class BottomMemeText extends StatelessWidget {
+  const BottomMemeText({
+    Key? key,
+    required this.item,
+  }) : super(key: key);
+
+  final MemeTextWithSelection item;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: item.selected ? AppColors.darkGrey16 : null,
+      height: 48,
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      alignment: Alignment.centerLeft,
+      child: Text(
+        item.memeText.text,
+        style: const TextStyle(
+          fontSize: 16,
+          color: AppColors.darkGrey,
+        ),
+      ),
+    );
+  }
+}
+
+class BottomSeparator extends StatelessWidget {
+  const BottomSeparator({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(left: 16),
+      height: 1,
+      color: AppColors.darkGrey,
     );
   }
 }
