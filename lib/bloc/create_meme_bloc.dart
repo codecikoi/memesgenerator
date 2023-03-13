@@ -31,7 +31,7 @@ class CreateMemeBloc {
     selectedMemeTextSubject.add(foundMemeText);
   }
 
-  void deselectedMemeText() {
+  void deselectMemeText() {
     selectedMemeTextSubject.add(null);
   }
 
