@@ -280,9 +280,16 @@ class DraggableMemeText extends StatefulWidget {
 }
 
 class _DraggableMemeTextState extends State<DraggableMemeText> {
-  double top = 0;
-  double left = 0;
+  late double top;
+  late double left;
   final double padding = 8;
+
+  @override
+  void initState() {
+    top = widget.parentConstraints.minHeight / 2;
+    left = widget.parentConstraints.maxWidth / 3;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -305,27 +312,11 @@ class _DraggableMemeTextState extends State<DraggableMemeText> {
           builder: (context, snapshot) {
             final selectedItem = snapshot.hasData ? snapshot.data : null;
             final selected = widget.memeText.id == selectedItem?.id;
-            return Container(
-              decoration: BoxDecoration(
-                color: selected ? AppColors.darkGrey16 : null,
-                border: Border.all(
-                  color: selected ? AppColors.fuchsia : Colors.transparent,
-                  width: 1.0,
-                ),
-              ),
-              constraints: BoxConstraints(
-                maxWidth: widget.parentConstraints.maxWidth,
-                maxHeight: widget.parentConstraints.maxHeight,
-              ),
-              padding: EdgeInsets.all(padding),
-              child: Text(
-                widget.memeText.text,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Colors.black,
-                  fontSize: 24,
-                ),
-              ),
+            return MemeTextOnCanvas(
+              selected: selected,
+              padding: padding,
+              parentConstraints: widget.parentConstraints,
+              memeText: widget.memeText,
             );
           },
         ),
@@ -353,6 +344,47 @@ class _DraggableMemeTextState extends State<DraggableMemeText> {
       return widget.parentConstraints.maxWidth - padding * 2 - 10;
     }
     return rawLeft;
+  }
+}
+
+class MemeTextOnCanvas extends StatelessWidget {
+  const MemeTextOnCanvas({
+    Key? key,
+    required this.selected,
+    required this.parentConstraints,
+    required this.padding,
+    required this.memeText,
+  }) : super(key: key);
+
+  final bool selected;
+  final MemeText memeText;
+  final BoxConstraints parentConstraints;
+  final double padding;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: selected ? AppColors.darkGrey16 : null,
+        border: Border.all(
+          color: selected ? AppColors.fuchsia : Colors.transparent,
+          width: 1.0,
+        ),
+      ),
+      constraints: BoxConstraints(
+        maxWidth: parentConstraints.maxWidth,
+        maxHeight: parentConstraints.maxHeight,
+      ),
+      padding: EdgeInsets.all(padding),
+      child: Text(
+        memeText.text,
+        textAlign: TextAlign.center,
+        style: const TextStyle(
+          color: Colors.black,
+          fontSize: 24,
+        ),
+      ),
+    );
   }
 }
 
