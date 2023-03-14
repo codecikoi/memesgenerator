@@ -1,7 +1,9 @@
+import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:memesgenerator/presentation/main/main_page.dart';
 
-void main() {
+void main() async {
+  EquatableConfig.stringify = true;
   runApp(const MyApp());
 }
 
