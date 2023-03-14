@@ -1,27 +1,16 @@
+import 'package:equatable/equatable.dart';
+
 import 'meme_text.dart';
 
-class MemeTextWithSelection {
+class MemeTextWithSelection extends Equatable {
   final MemeText memeText;
   final bool selected;
 
-  MemeTextWithSelection({
+  const MemeTextWithSelection({
     required this.memeText,
     required this.selected,
   });
 
   @override
-  String toString() {
-    return 'MemeTextWithSelection{memeText: $memeText, selected: $selected}';
-  }
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is MemeTextWithSelection &&
-          runtimeType == other.runtimeType &&
-          memeText == other.memeText &&
-          selected == other.selected;
-
-  @override
-  int get hashCode => memeText.hashCode ^ selected.hashCode;
+  List<Object?> get props => [memeText, selected];
 }
