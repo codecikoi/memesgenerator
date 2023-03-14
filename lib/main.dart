@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:memesgenerator/pages/main_page.dart';
+import 'package:memesgenerator/presentation/main/main_page.dart';
 
 void main() {
   runApp(const MyApp());

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:memesgenerator/resources/app_colors.dart';
 import 'package:provider/provider.dart';
-import '../bloc/main_bloc.dart';
-import 'create_meme_page.dart';
+import 'main_bloc.dart';
+import '../create_meme/create_meme_page.dart';
 
 
 class MainPage extends StatefulWidget {

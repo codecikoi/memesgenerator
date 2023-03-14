@@ -1,5 +1,6 @@
 import 'package:rxdart/rxdart.dart';
-import 'package:uuid/uuid.dart';
+import 'models/meme_text.dart';
+import 'models/meme_text_with_selection.dart';
 import 'package:collection/collection.dart';
 
 class CreateMemeBloc {
@@ -59,61 +60,5 @@ class CreateMemeBloc {
   void dispose() {
     memeTextsSubject.close();
     selectedMemeTextSubject.close();
-  }
-}
-
-class MemeTextWithSelection {
-  final MemeText memeText;
-  final bool selected;
-
-  MemeTextWithSelection({
-    required this.memeText,
-    required this.selected,
-  });
-
-  @override
-  String toString() {
-    return 'MemeTextWithSelection{memeText: $memeText, selected: $selected}';
-  }
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is MemeTextWithSelection &&
-          runtimeType == other.runtimeType &&
-          memeText == other.memeText &&
-          selected == other.selected;
-
-  @override
-  int get hashCode => memeText.hashCode ^ selected.hashCode;
-}
-
-class MemeText {
-  final String id;
-  final String text;
-
-  MemeText({
-    required this.id,
-    required this.text,
-  });
-
-  factory MemeText.create() {
-    return MemeText(id: const Uuid().v4(), text: "");
-  }
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is MemeText &&
-          runtimeType == other.runtimeType &&
-          id == other.id &&
-          text == other.text;
-
-  @override
-  int get hashCode => id.hashCode ^ text.hashCode;
-
-  @override
-  String toString() {
-    return 'MemeText{id: t`$id, text: $text}';
   }
 }

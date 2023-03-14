@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
-import '../bloc/create_meme_bloc.dart';
-import '../resources/app_colors.dart';
+import 'create_meme_bloc.dart';
+import '../../resources/app_colors.dart';
+import 'models/meme_text.dart';
+import 'models/meme_text_with_selection.dart';
 
 class CreateMemePage extends StatefulWidget {
   const CreateMemePage({Key? key}) : super(key: key);
