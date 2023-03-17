@@ -13,7 +13,7 @@ import 'shared.dart';
 ///
 /// 4. Выносим логику с сохранением мема в interactor
 ///    Обязательное, 2 балла
-///    1. В папке domain создаем папку interactors
+///    1. В папке domain создаем папку iteractors
 ///    2. В этой папке создаем файл save_meme_interactor.dart
 ///    3. В файле создаем класс SaveMemeInteractor
 ///    4. Добавляем factory конструктор getInstance() по аналогии с другими

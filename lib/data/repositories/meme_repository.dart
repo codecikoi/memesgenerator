@@ -1,85 +1,64 @@
 import 'dart:convert';
+import 'package:memesgenerator/data/models/meme.dart';
+import 'package:memesgenerator/data/shared_preference_data.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:collection/collection.dart';
 
 class MemesRepository {
-
   final updater = PublishSubject<Null>();
+  final SharedPreferenceData spData;
 
   static MemesRepository? _instance;
 
-  factory MemesRepository.getInstance() => _instance ??= MemesRepository._internal();
+  factory MemesRepository.getInstance() => _instance ??=
+      MemesRepository._internal(SharedPreferenceData.getInstance());
 
-  MemesRepository._internal();
+  MemesRepository._internal(this.spData);
 
-  Future<bool> addFavorites(final Superhero superhero) async {
-    final rawSuperheroes = await _getRawSuperheroes();
-    rawSuperheroes.add(json.encode(superhero.toJson()));
-    return _setRawSuperheroes(rawSuperheroes);
-  }
-
-  Future<List<String>> _getRawSuperheroes() async {
-    final sp = await SharedPreferences.getInstance();
-    return sp.getStringList(_key) ?? [];
-  }
-
-  Future<bool> _setRawSuperheroes(final List<String> rawSuperheroes) async {
-    final sp = await SharedPreferences.getInstance();
-    final result = sp.setStringList(_key, rawSuperheroes);
-    updater.add(null);
-    return result;
-  }
-
-  Future<bool> removeFromFavorites(final String id) async {
-    final superheroes = await _getSuperheroes();
-    superheroes.removeWhere((superhero) => superhero.id == id);
-    return _setSuperheroes(superheroes);
-  }
-
-  Future<List<Superhero>> _getSuperheroes() async {
-    final rawSuperheroes = await _getRawSuperheroes();
-    return rawSuperheroes
-        .map((rawSuperhero) => Superhero.fromJson(json.decode(rawSuperhero)))
-        .toList();
-  }
-
-  Future<bool> _setSuperheroes(final List<Superhero> superheroes) async {
-    final rawSuperheroes = superheroes
-        .map((superhero) => json.encode(superhero.toJson()))
-        .toList();
-    return _setRawSuperheroes(rawSuperheroes);
-  }
-
-  Future<Superhero?> getSuperhero(final String id) async {
-    final superheroes = await _getSuperheroes();
-    for (final superhero in superheroes) {
-      if (superhero.id == id) {
-        return superhero;
-      }
+  Future<bool> addToMemes(final Meme newMeme) async {
+    final memes = await getMemes();
+    final memeIndex = memes.indexWhere((meme) => meme.id == newMeme.id);
+    if (memeIndex == -1) {
+      memes.add(newMeme);
+    } else {
+      memes.removeAt(memeIndex);
+      memes.insert(memeIndex, newMeme);
     }
-    return null;
+    return _setMemes(memes);
   }
 
-  Stream<List<Superhero>> observeFavoriteSuperheroes() async* {
-    yield await _getSuperheroes();
+  Future<bool> removeFromMemes(final String id) async {
+    final memes = await getMemes();
+    memes.removeWhere((meme) => meme.id == id);
+    return _setMemes(memes);
+  }
+
+  Stream<List<Meme>> observeMemes() async* {
+    yield await getMemes();
     await for (final _ in updater) {
-      yield await _getSuperheroes();
+      yield await getMemes();
     }
   }
 
-  Stream<bool> observeIsFavorite(final String id) {
-    return observeFavoriteSuperheroes().map(
-        (superheroes) => superheroes.any((superhero) => superhero.id == id));
+  Future<List<Meme>> getMemes() async {
+    final rawMemes = await spData.getMemes();
+    return rawMemes
+        .map((rawMeme) => Meme.fromJson(json.decode(rawMeme)))
+        .toList();
   }
 
-  Future<bool> updateIfInFavorites(final Superhero newSuperhero) async {
-    final superheroes = await _getSuperheroes();
-    final index =
-        superheroes.indexWhere((superhero) => superhero.id == newSuperhero.id);
-    if (index == -1) {
-      return false;
-    }
-    superheroes[index] = newSuperhero;
-    return _setSuperheroes(superheroes);
+  Future<Meme?> getMeme(final String id) async {
+    final memes = await getMemes();
+    return memes.firstWhereOrNull((meme) => meme.id == id);
+  }
+
+  Future<bool> _setMemes(final List<Meme> memes) async {
+    final rawMemes = memes.map((meme) => json.encode(meme.toJson())).toList();
+    return _setRawMemes(rawMemes);
+  }
+
+  Future<bool> _setRawMemes(final List<String> rawMemes) {
+    updater.add(null);
+    return spData.setMemes(rawMemes);
   }
 }

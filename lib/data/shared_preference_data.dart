@@ -3,6 +3,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 class SharedPreferenceData {
   static const memeKey = 'meme_key';
 
+  static SharedPreferenceData? _instance;
+
+  factory SharedPreferenceData.getInstance() => _instance ??= SharedPreferenceData._internal();
+
+  SharedPreferenceData._internal();
+
+
   Future<bool> setMemes(final List<String> memes) async {
     final sp = await SharedPreferences.getInstance();
     final result = sp.setStringList(memeKey, memes);
