@@ -1,3 +1,5 @@
+// ignore_for_file: depend_on_referenced_packages, prefer_void_to_null
+
 import 'dart:convert';
 import 'package:memesgenerator/data/models/meme.dart';
 import 'package:memesgenerator/data/shared_preference_data.dart';

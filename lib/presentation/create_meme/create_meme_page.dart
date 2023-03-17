@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:uuid/uuid.dart';
 import 'create_meme_bloc.dart';
 import '../../resources/app_colors.dart';
 import 'models/meme_text.dart';
 import 'models/meme_text_with_selection.dart';
 
 class CreateMemePage extends StatefulWidget {
-  const CreateMemePage({Key? key}) : super(key: key);
+  final String? id;
+  final String? path;
+
+  const CreateMemePage({Key? key, this.id, this.path}) : super(key: key);
 
   @override
   State<CreateMemePage> createState() => _CreateMemePageState();
@@ -18,7 +22,10 @@ class _CreateMemePageState extends State<CreateMemePage> {
   @override
   void initState() {
     super.initState();
-    bloc = CreateMemeBloc();
+    bloc = CreateMemeBloc(
+      id: widget.id ?? const Uuid().v4(),
+      imagePath: widget.path,
+    );
   }
 
   @override
@@ -32,6 +39,12 @@ class _CreateMemePageState extends State<CreateMemePage> {
           foregroundColor: AppColors.darkGrey,
           title: const Text('Creating meme'),
           bottom: const EditTextBar(),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.save),
+              onPressed: bloc.saveMeme,
+            ),
+          ],
         ),
         backgroundColor: Colors.white,
         body: const SafeArea(
@@ -193,16 +206,21 @@ class BottomMemeText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: item.selected ? AppColors.darkGrey16 : null,
-      height: 48,
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      alignment: Alignment.centerLeft,
-      child: Text(
-        item.memeText.text,
-        style: const TextStyle(
-          fontSize: 16,
-          color: AppColors.darkGrey,
+    final bloc = Provider.of<CreateMemeBloc>(context, listen: false);
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => bloc.selectMemeText(item.memeText.id),
+      child: Container(
+        color: item.selected ? AppColors.darkGrey16 : null,
+        height: 48,
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        alignment: Alignment.centerLeft,
+        child: Text(
+          item.memeText.text,
+          style: const TextStyle(
+            fontSize: 16,
+            color: AppColors.darkGrey,
+          ),
         ),
       ),
     );
@@ -287,8 +305,20 @@ class _DraggableMemeTextState extends State<DraggableMemeText> {
 
   @override
   void initState() {
-    top = widget.parentConstraints.minHeight / 2;
-    left = widget.parentConstraints.maxWidth / 3;
+    top = widget.memeTextWithOffset.offset?.dy ??
+        widget.parentConstraints.maxHeight / 2;
+    left = widget.memeTextWithOffset.offset?.dx ??
+        widget.parentConstraints.maxWidth / 3;
+
+    if (memeTextWithOffset == null) {
+      WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+        final bloc = Provider.of<CreateMemeBloc>(context, listen: false);
+        bloc.changeMemeTextOffset(
+          widget.memeTextWithOffset.id,
+          Offset(left, top),
+        );
+      });
+    }
     super.initState();
   }
 
