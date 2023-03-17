@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:memesgenerator/resources/app_colors.dart';
 import 'package:provider/provider.dart';
+import '../../data/models/meme.dart';
 import 'main_bloc.dart';
 import '../create_meme/create_meme_page.dart';
-
 
 class MainPage extends StatefulWidget {
   const MainPage({Key? key}) : super(key: key);
@@ -76,9 +76,32 @@ class MainPageContent extends StatefulWidget {
 class _MainPageContentState extends State<MainPageContent> {
   @override
   Widget build(BuildContext context) {
-    return Container();
+    final bloc = Provider.of<MainBloc>(context, listen: false);
+    return StreamBuilder<List<Meme>>(
+      initialData: const <Meme>[],
+      stream: bloc.observeMemes(),
+      builder: (context, snapshot) {
+        final items = snapshot.hasData ? snapshot.data! : <Meme>[];
+        print("MAIN. $items");
+        return ListView(
+          children: items.map(
+            (meme) {
+              return GestureDetector(
+                onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) {
+                    return CreateMemePage(id: meme.id);
+                  },
+                )),
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  child: Text(meme.id),
+                ),
+              );
+            },
+          ).toList(),
+        );
+      },
+    );
   }
 }
-
-
-
