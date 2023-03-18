@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:screenshot/screenshot.dart';
 import 'package:uuid/uuid.dart';
 import 'create_meme_bloc.dart';
 import '../../resources/app_colors.dart';
@@ -266,13 +267,27 @@ class MemeCanvasWidget extends StatelessWidget {
                       snapshot.hasData ? snapshot.data! : const <MemeText>[];
                   return LayoutBuilder(
                     builder: (context, constraints) {
-                      return Stack(
-                        children: memeTexts.map((memeText) {
-                          return DraggableMemeText(
-                            memeText: memeText,
-                            parentConstraints: constraints,
-                          );
-                        }).toList(),
+                      return StreamBuilder<ScreenshotController>(
+                          builder: (context, snapshot)
+                      {
+if (!snapshot.hasCode) {
+  return const SizedBox.shrink();
+
+}
+                      }
+
+                        return Screenshot(
+
+
+                        controller: ,
+                        child: Stack(
+                          children: memeTexts.map((memeText) {
+                            return DraggableMemeText(
+                              memeText: memeText,
+                              parentConstraints: constraints,
+                            );
+                          }).toList(),
+                        ),
                       );
                     },
                   );

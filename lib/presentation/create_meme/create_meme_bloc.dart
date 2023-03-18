@@ -11,6 +11,7 @@ import 'package:memesgenerator/presentation/create_meme/models/meme_text_offset.
 import 'package:memesgenerator/presentation/create_meme/models/meme_text_with_offset.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:screenshot/screenshot.dart';
 import 'package:uuid/uuid.dart';
 import '../../data/models/position.dart';
 import 'models/meme_text.dart';
@@ -25,6 +26,8 @@ class CreateMemeBloc {
   final newMemeTextOffsetSubject =
       BehaviorSubject<MemeTextOffset?>.seeded(null);
   final memePathSubject = BehaviorSubject<String?>.seeded(null);
+  final screenshotControllerSubject =
+      BehaviorSubject<ScreenshotController>.seeded(ScreenshotController());
 
   StreamSubscription<MemeTextOffset?>? newMemeTextOffsetSubscription;
   StreamSubscription<bool>? saveMemeSubscription;
@@ -171,6 +174,9 @@ class CreateMemeBloc {
   Stream<List<MemeText>> observeMemeTexts() => memeTextsSubject
       .distinct((prev, next) => const ListEquality().equals(prev, next));
 
+  Stream<ScreenshotController> observeScreenshotController() =>
+      screenshotControllerSubject.distinct();
+
   Stream<List<MemeTextWithOffset>> observeMemeTextWithOffsets() {
     return Rx.combineLatest2<List<MemeText>, List<MemeTextOffset>,
             List<MemeTextWithOffset>>(
@@ -213,7 +219,7 @@ class CreateMemeBloc {
     memeTextOffsetsSubject.close();
     newMemeTextOffsetSubject.close();
     memePathSubject.close();
-
+    screenshotControllerSubject.close();
     newMemeTextOffsetSubscription?.cancel();
     saveMemeSubscription?.cancel();
     existentMemeSubscription?.cancel();
