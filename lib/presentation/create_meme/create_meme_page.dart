@@ -270,11 +270,10 @@ class MemeCanvasWidget extends StatelessWidget {
                       return StreamBuilder<ScreenshotController>(
                           builder: (context, snapshot)
                       {
-if (!snapshot.hasCode) {
+if (!snapshot.hasData!) {
   return const SizedBox.shrink();
 
 }
-                      }
 
                         return Screenshot(
 
