@@ -32,14 +32,14 @@ class CreateMemeBloc {
   StreamSubscription<MemeTextOffset?>? newMemeTextOffsetSubscription;
   StreamSubscription<bool>? saveMemeSubscription;
   StreamSubscription<Meme?>? existentMemeSubscription;
+  StreamSubscription<void>? shareMemeSubscription;
 
   final String id;
 
   CreateMemeBloc({
     final String? id,
     final String? selectedMemePath,
-  }) : this.id = id ?? Uuid().v4() {
-    print('got it: $id');
+  }) : id = id ?? const Uuid().v4() {
     memePathSubject.add(selectedMemePath);
     _subscribeToNewMemeTextOffset();
     _subscribeToExistentMeme();
@@ -47,15 +47,13 @@ class CreateMemeBloc {
 
   void _subscribeToExistentMeme() {
     existentMemeSubscription =
-        MemesRepository.getInstance().getMeme(this.id).asStream().listen(
+        MemesRepository.getInstance().getMeme(id).asStream().listen(
       (meme) {
         if (meme == null) {
           return;
         }
-        print('got meme in constructor: $meme');
-
         final memeTexts = meme.texts.map((textWithPosition) {
-          return MemeText(id: textWithPosition.id, text: textWithPosition.text);
+          return MemeText.createFromTextWithPosition(textWithPosition);
         }).toList();
 
         final memeTextOffsets = meme.texts.map((textWithPosition) {
@@ -72,11 +70,51 @@ class CreateMemeBloc {
 
         memeTextsSubject.add(memeTexts);
         memeTextOffsetsSubject.add(memeTextOffsets);
-        memePathSubject.add(meme.memePath);
+
+        if (meme.memePath != null) {
+          getApplicationDocumentsDirectory().then((docsDirectory) {
+            final onlyImageName =
+                meme.memePath!.split(Platform.pathSeparator).last;
+            final fullImagePath =
+                "${docsDirectory.absolute.path}${Platform.pathSeparator}${SaveMemeInteractor.memesPathName}${Platform.pathSeparator}$onlyImageName";
+
+            memePathSubject.add(fullImagePath);
+          });
+        }
       },
       onError: (error, stackTrace) =>
           print('Error in existentMemeSubscription: $error, $stackTrace'),
     );
+  }
+
+  void shareMeme() {
+    shareMemeSubscription?.cancel();
+    shareMemeSubscription = ScreenshotController.getInstance()
+        .shareScreenshot(screenshotControllerSubject.value)
+        .asStream()
+        .listen(
+          (event) {},
+          onError: (error, stackTrace) =>
+              print('Error in shareMemeSubscription: $error, $stackTrace'),
+        );
+  }
+
+  void changeFontSettings(
+    final String textId,
+    final Color color,
+    final double fontSize,
+  ) {
+    final copiedList = [...memeTextsSubject.value];
+    final oldMemeText =
+        copiedList.firstWhereOrNull((memeText) => memeText.id == textId);
+    if (oldMemeText == null) {
+      return;
+    }
+    copiedList.remove(oldMemeText);
+    copiedList.add(
+      oldMemeText.copyWithChangedFontSettings(color, fontSize),
+    );
+    memeTextsSubject.add(copiedList);
   }
 
   void saveMeme() {
@@ -223,5 +261,6 @@ class CreateMemeBloc {
     newMemeTextOffsetSubscription?.cancel();
     saveMemeSubscription?.cancel();
     existentMemeSubscription?.cancel();
+    shareMemeSubscription?.cancel();
   }
 }
