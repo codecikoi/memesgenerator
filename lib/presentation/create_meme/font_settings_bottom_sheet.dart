@@ -49,7 +49,7 @@ class _FontSettingBottomSheetState extends State<FontSettingBottomSheet> {
           const SizedBox(height: 16.0),
           MemeTextOnCanvas(
             selected: true,
-            parentConstraints: BoxConstraints.expand(),
+            parentConstraints: const BoxConstraints.expand(),
             padding: 8,
             text: widget.memeText.text,
             color: color,

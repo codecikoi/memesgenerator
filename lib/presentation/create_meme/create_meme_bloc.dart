@@ -7,6 +7,7 @@ import 'package:memesgenerator/data/models/meme.dart';
 import 'package:memesgenerator/data/models/text_with_position.dart';
 import 'package:memesgenerator/data/repositories/memes_repository.dart';
 import 'package:memesgenerator/domain/interactors/save_meme_interactor.dart';
+import 'package:memesgenerator/domain/interactors/screenshot_interactor.dart';
 import 'package:memesgenerator/presentation/create_meme/models/meme_text_offset.dart';
 import 'package:memesgenerator/presentation/create_meme/models/meme_text_with_offset.dart';
 import 'package:path_provider/path_provider.dart';
@@ -89,7 +90,7 @@ class CreateMemeBloc {
 
   void shareMeme() {
     shareMemeSubscription?.cancel();
-    shareMemeSubscription = ScreenshotController.getInstance()
+    shareMemeSubscription = ScreenshotInteractor.getInstance()
         .shareScreenshot(screenshotControllerSubject.value)
         .asStream()
         .listen(
@@ -130,14 +131,21 @@ class CreateMemeBloc {
         left: memeTextPosition?.offset.dx ?? 0,
       );
       return TextWithPosition(
-          id: memeText.id, text: memeText.text, position: position);
+        id: memeText.id,
+        text: memeText.text,
+        position: position,
+        fontSize: memeText.fontSize,
+        color: memeText.color,
+      );
     }).toList();
 
     saveMemeSubscription = SaveMemeInteractor.getInstance()
         .saveMeme(
-            id: id,
-            textWithPositions: textsWithPositions,
-            imagePath: memePathSubject.value)
+          id: id,
+          textWithPositions: textsWithPositions,
+          screenshotController: screenshotControllerSubject.value0,
+          imagePath: memePathSubject.value,
+        )
         .asStream()
         .listen(
       (saved) {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memesgenerator/presentation/widgets/app_text_button.dart';
 import 'package:provider/provider.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:uuid/uuid.dart';
@@ -9,9 +10,9 @@ import 'models/meme_text_with_selection.dart';
 
 class CreateMemePage extends StatefulWidget {
   final String? id;
-  final String? path;
+  final String? selectedMemePath;
 
-  const CreateMemePage({Key? key, this.id, this.path}) : super(key: key);
+  const CreateMemePage({Key? key, this.id,  this.selectedMemePath,}) : super(key: key);
 
   @override
   State<CreateMemePage> createState() => _CreateMemePageState();
@@ -25,7 +26,7 @@ class _CreateMemePageState extends State<CreateMemePage> {
     super.initState();
     bloc = CreateMemeBloc(
       id: widget.id ?? const Uuid().v4(),
-      imagePath: widget.path,
+      selectedMemePath: widget.selectedMemePath,
     );
   }
 
@@ -33,23 +34,46 @@ class _CreateMemePageState extends State<CreateMemePage> {
   Widget build(BuildContext context) {
     return Provider.value(
       value: bloc,
-      child: Scaffold(
-        resizeToAvoidBottomInset: false,
-        appBar: AppBar(
-          backgroundColor: AppColors.lemon,
-          foregroundColor: AppColors.darkGrey,
-          title: const Text('Creating meme'),
-          bottom: const EditTextBar(),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.save),
-              onPressed: bloc.saveMeme,
-            ),
-          ],
-        ),
-        backgroundColor: Colors.white,
-        body: const SafeArea(
-          child: CreateMemePageContent(),
+      child: WillPopScope(
+        onWillPop: () async {
+          final goBack = await showConfirmationExitDialog(context);
+          return goBack ?? false;
+        },        
+        child: Scaffold(
+          resizeToAvoidBottomInset: false,
+          appBar: AppBar(
+            backgroundColor: AppColors.lemon,
+            foregroundColor: AppColors.darkGrey,
+            title: const Text('Creating meme'),
+            bottom: const EditTextBar(),
+            actions: [
+              GestureDetector(
+                onTap: () => bloc.shareMeme(),
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child:              
+                  Icon(
+                    Icons.share, 
+                    color: AppColors.darkGrey,
+                  ),
+                ),
+      ),
+                     GestureDetector(
+                       onTap: () => bloc.saveMeme(),
+                       child: const Padding(
+                         padding:  EdgeInsets.symmetric(horizontal: 16.0),
+                         child: Icon(
+                          Icons.save,
+                           color: AppColors.darkGrey,
+                         ),
+                       ),
+                     ),
+                         ],
+          ),
+          backgroundColor: Colors.white,
+          body: const SafeArea(
+            child: CreateMemePageContent(),
+          ),
         ),
       ),
     );
@@ -60,7 +84,34 @@ class _CreateMemePageState extends State<CreateMemePage> {
     bloc.dispose();
     super.dispose();
   }
+
+
+
+Future<bool?> showConfirmationExitTextDialog(BuildContext context) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Are you sure?'),
+          actionsPadding: const EdgeInsets.symmetric(horizontal: 16),
+          content: const Text('You will lose all changes'),
+          actions: [
+            AppButton(
+              onTap: () => Navigator.of(context).pop(false),
+              text: 'Cancel',
+              color: AppColors.darkGrey,
+            ),
+            AppButton(
+              onTap: () => Navigator.of(context).pop(true),
+              text: 'Exit', color: Colors.transparent,
+            ),
+          ],
+        );
+      },
+  );
 }
+}
+
 
 class EditTextBar extends StatefulWidget implements PreferredSizeWidget {
   const EditTextBar({Key? key}) : super(key: key);

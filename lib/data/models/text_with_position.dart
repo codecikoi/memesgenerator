@@ -20,8 +20,8 @@ class TextWithPosition extends Equatable {
     required this.id,
     required this.text,
     required this.position,
-    this.fontSize,
-    this.color,
+    required this.fontSize,
+    required this.color,
   });
 
   factory TextWithPosition.fromJson(final Map<String, dynamic> json) =>
