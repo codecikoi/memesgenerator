@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memesgenerator/presentation/create_meme/models/meme_text_with_offset.dart';
 import 'package:memesgenerator/presentation/widgets/app_text_button.dart';
 import 'package:provider/provider.dart';
 import 'package:screenshot/screenshot.dart';
@@ -12,7 +13,11 @@ class CreateMemePage extends StatefulWidget {
   final String? id;
   final String? selectedMemePath;
 
-  const CreateMemePage({Key? key, this.id,  this.selectedMemePath,}) : super(key: key);
+  const CreateMemePage({
+    Key? key,
+    this.id,
+    this.selectedMemePath,
+  }) : super(key: key);
 
   @override
   State<CreateMemePage> createState() => _CreateMemePageState();
@@ -38,7 +43,7 @@ class _CreateMemePageState extends State<CreateMemePage> {
         onWillPop: () async {
           final goBack = await showConfirmationExitDialog(context);
           return goBack ?? false;
-        },        
+        },
         child: Scaffold(
           resizeToAvoidBottomInset: false,
           appBar: AppBar(
@@ -51,24 +56,23 @@ class _CreateMemePageState extends State<CreateMemePage> {
                 onTap: () => bloc.shareMeme(),
                 child: const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16),
-                  child:              
-                  Icon(
-                    Icons.share, 
+                  child: Icon(
+                    Icons.share,
                     color: AppColors.darkGrey,
                   ),
                 ),
-      ),
-                     GestureDetector(
-                       onTap: () => bloc.saveMeme(),
-                       child: const Padding(
-                         padding:  EdgeInsets.symmetric(horizontal: 16.0),
-                         child: Icon(
-                          Icons.save,
-                           color: AppColors.darkGrey,
-                         ),
-                       ),
-                     ),
-                         ],
+              ),
+              GestureDetector(
+                onTap: () => bloc.saveMeme(),
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Icon(
+                    Icons.save,
+                    color: AppColors.darkGrey,
+                  ),
+                ),
+              ),
+            ],
           ),
           backgroundColor: Colors.white,
           body: const SafeArea(
@@ -85,9 +89,7 @@ class _CreateMemePageState extends State<CreateMemePage> {
     super.dispose();
   }
 
-
-
-Future<bool?> showConfirmationExitTextDialog(BuildContext context) {
+  Future<bool?> showConfirmationExitTextDialog(BuildContext context) {
     return showDialog(
       context: context,
       builder: (context) {
@@ -103,15 +105,15 @@ Future<bool?> showConfirmationExitTextDialog(BuildContext context) {
             ),
             AppButton(
               onTap: () => Navigator.of(context).pop(true),
-              text: 'Exit', color: Colors.transparent,
+              text: 'Exit',
+              color: Colors.transparent,
             ),
           ],
         );
       },
-  );
+    );
+  }
 }
-}
-
 
 class EditTextBar extends StatefulWidget implements PreferredSizeWidget {
   const EditTextBar({Key? key}) : super(key: key);
@@ -308,46 +310,56 @@ class MemeCanvasWidget extends StatelessWidget {
         aspectRatio: 1,
         child: GestureDetector(
           onTap: () => bloc.deselectMemeText(),
-          child: Container(
-            color: Colors.white,
-            child: StreamBuilder<List<MemeText>>(
-                initialData: const <MemeText>[],
-                stream: bloc.observeMemeTexts(),
-                builder: (context, snapshot) {
-                  final memeTexts =
-                      snapshot.hasData ? snapshot.data! : const <MemeText>[];
-                  return LayoutBuilder(
-                    builder: (context, constraints) {
-                      return StreamBuilder<ScreenshotController>(
-                          builder: (context, snapshot)
-                      {
-if (!snapshot.hasData!) {
-  return const SizedBox.shrink();
-
-}
-
-                        return Screenshot(
-
-
-                        controller: ,
-                        child: Stack(
-                          children: memeTexts.map((memeText) {
-                            return DraggableMemeText(
-                              memeText: memeText,
-                              parentConstraints: constraints,
-                            );
-                          }).toList(),
-                        ),
-                      );
-                    },
-                  );
-                }),
+          child: StreamBuilder<ScreenshotController>(
+            stream: bloc.observeScreenshotController(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return const SizedBox.shrink();
+              }
+              return Screenshot(
+                controller: snapshot.requireData,
+                child: Stack(
+                  children: [
+                    BackgroundImage(),
+                    MemeTexts(),
+                  ],
+                ),
+              );
+            },
           ),
         ),
       ),
     );
   }
 }
+
+class MemeTexts extends StatelessWidget {
+  const MemeTexts({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final bloc = Provider.of<CreateMemeBloc>(context, listen: false);
+    return StreamBuilder<List<MemeTextWithOffset>>(
+      initialData: const <MemeTextWithOffset>[],
+      stream: bloc.observeMemeTextWithOffsets(),
+      builder: (context, snapshot) {
+        final memeTextWithOffsets = snapshot.hasData ? snapshot.data! : const <MemeTextWithOffset>[];
+        return LayoutBuilder(builder: (context, constraints) {
+          return Stack(
+            children: memeTextWithOffsets.map((memeTextWithOffsets) {
+              return DraggableMemeText(
+                  key: ValueKey(memeTextWithOffsets.memeText.id),
+                  memeTextWithOffset: memeTextWithOffsets,
+                  parentConstraints: constraints,);
+            }).toList();
+          );
+        });
+      } ,
+    );
+  }
+}
+
+
 
 class DraggableMemeText extends StatefulWidget {
   final MemeText memeText;
