@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:memesgenerator/resources/app_colors.dart';
 import 'package:provider/provider.dart';
 import '../../data/models/meme.dart';
+import '../widgets/app_text_button.dart';
 import 'main_bloc.dart';
 import '../create_meme/create_meme_page.dart';
 
@@ -26,34 +27,40 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     return Provider.value(
       value: bloc,
-      child: Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          backgroundColor: AppColors.lemon,
-          foregroundColor: AppColors.darkGrey,
-          title: Text(
-            'Memesgenerator',
-            style: GoogleFonts.seymourOne(fontSize: 24),
+      child: WillPopScope(
+        onWillPop: () async {
+          final goBack = await showConfirmationExitTextDialog(context);
+          return goBack ?? false;
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            centerTitle: true,
+            backgroundColor: AppColors.lemon,
+            foregroundColor: AppColors.darkGrey,
+            title: Text(
+              'Memesgenerator',
+              style: GoogleFonts.seymourOne(fontSize: 24),
+            ),
           ),
-        ),
-        floatingActionButton: FloatingActionButton.extended(
-          backgroundColor: AppColors.fuchsia,
-          icon: const Icon(
-            Icons.add,
-            color: Colors.white,
+          floatingActionButton: FloatingActionButton.extended(
+            backgroundColor: AppColors.fuchsia,
+            icon: const Icon(
+              Icons.add,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const CreateMemePage(),
+                ),
+              );
+            },
+            label: const Text('Create'),
           ),
-          onPressed: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => const CreateMemePage(),
-              ),
-            );
-          },
-          label: const Text('Create'),
-        ),
-        backgroundColor: Colors.white,
-        body: const SafeArea(
-          child: MainPageContent(),
+          backgroundColor: Colors.white,
+          body: const SafeArea(
+            child: MainPageContent(),
+          ),
         ),
       ),
     );
@@ -64,6 +71,31 @@ class _MainPageState extends State<MainPage> {
     bloc.dispose();
     super.dispose();
   }
+}
+
+Future<bool?> showConfirmationExitTextDialog(BuildContext context) {
+  return showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: const Text('Are you sure you want to quit?'),
+        actionsPadding: const EdgeInsets.symmetric(horizontal: 16),
+        content: const Text('Memes can\'t make by themselves'),
+        actions: [
+          AppButton(
+            onTap: () => Navigator.of(context).pop(false),
+            text: 'Stay',
+            color: AppColors.darkGrey,
+          ),
+          AppButton(
+            onTap: () => Navigator.of(context).pop(true),
+            text: 'Exit',
+            color: Colors.transparent,
+          ),
+        ],
+      );
+    },
+  );
 }
 
 class MainPageContent extends StatefulWidget {

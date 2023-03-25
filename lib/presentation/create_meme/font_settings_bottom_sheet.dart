@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:memesgenerator/presentation/create_meme/create_meme_bloc.dart';
-import 'package:memesgenerator/presentation/create_meme/create_meme_page.dart';
 import 'package:memesgenerator/presentation/create_meme/models/meme_text.dart';
 import 'package:memesgenerator/presentation/widgets/app_text_button.dart';
 import 'package:memesgenerator/resources/app_colors.dart';
 import 'package:provider/provider.dart';
+
+import 'meme_text_on_canvas.dart';
 
 class FontSettingBottomSheet extends StatefulWidget {
   final MemeText memeText;
@@ -30,55 +31,54 @@ class _FontSettingBottomSheetState extends State<FontSettingBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.white,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const SizedBox(height: 8.0),
-          Center(
-            child: Container(
-              height: 4,
-              width: 64,
-              decoration: BoxDecoration(
-                color: AppColors.darkGrey38,
-                borderRadius: BorderRadius.circular(2.0),
-              ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const SizedBox(height: 8.0),
+        Center(
+          child: Container(
+            height: 4,
+            width: 64,
+            decoration: BoxDecoration(
+              color: AppColors.darkGrey38,
+              borderRadius: BorderRadius.circular(2.0),
             ),
           ),
-          const SizedBox(height: 16.0),
-          MemeTextOnCanvas(
-            selected: true,
-            parentConstraints: const BoxConstraints.expand(),
-            padding: 8,
-            text: widget.memeText.text,
+        ),
+        const SizedBox(height: 16.0),
+        MemeTextOnCanvas(
+          selected: true,
+          parentConstraints: const BoxConstraints.expand(),
+          padding: 8,
+          text: widget.memeText.text,
+          color: color,
+          fontSize: fontSize,
+          fontWeight: FontWeight.w500,
+        ),
+        const SizedBox(height: 16.0),
+        FontSizeSlider(
+          initialFontSize: fontSize,
+          changeFontSize: (value) {
+            setState(() => fontSize = value);
+          },
+        ),
+        const SizedBox(height: 16.0),
+        ColorSelection(
+          changeColor: (color) {
+            setState(() => this.color = color);
+          },
+        ),
+        const SizedBox(height: 36.0),
+        Align(
+          alignment: Alignment.centerRight,
+          child: Buttons(
+            textId: widget.memeText.id,
             color: color,
+            fontSize: fontSize,
           ),
-          const SizedBox(height: 16.0),
-          FontSizeSlider(
-            initialFontSize: fontSize,
-            changeFontSize: (value) {
-              setState(() => fontSize = value);
-            },
-          ),
-          const SizedBox(height: 16.0),
-          ColorSelection(
-            changeColor: (color) {
-              setState(() => this.color = color);
-            },
-          ),
-          const SizedBox(height: 36.0),
-          Align(
-            alignment: Alignment.centerRight,
-            child: Buttons(
-              textId: widget.memeText.id,
-              color: color,
-              fontSize: fontSize,
-            ),
-          ),
-          const SizedBox(height: 48.0),
-        ],
-      ),
+        ),
+        const SizedBox(height: 48.0),
+      ],
     );
   }
 }
