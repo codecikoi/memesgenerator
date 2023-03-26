@@ -28,11 +28,12 @@ class _FontSettingBottomSheetState extends State<FontSettingBottomSheet> {
     super.initState();
     fontSize = widget.memeText.fontSize;
     color = widget.memeText.color;
-    fontWeight = FontWeight.w400;
+    fontWeight = widget.memeText.fontWeight;
   }
 
   @override
   Widget build(BuildContext context) {
+    final bloc = Provider.of<CreateMemeBloc>(context, listen: false);
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -83,8 +84,14 @@ class _FontSettingBottomSheetState extends State<FontSettingBottomSheet> {
           alignment: Alignment.centerRight,
           child: Buttons(
             textId: widget.memeText.id,
-            color: color,
-            fontSize: fontSize,
+            onPositiveButtonAction: () {
+              bloc.changeFontSettings(
+                widget.memeText.id,
+                color,
+                fontSize,
+                fontWeight,
+              );
+            },
           ),
         ),
         const SizedBox(height: 48.0),
@@ -95,20 +102,16 @@ class _FontSettingBottomSheetState extends State<FontSettingBottomSheet> {
 
 class Buttons extends StatelessWidget {
   final String textId;
-  final Color color;
-  final double fontSize;
+  final VoidCallback onPositiveButtonAction;
 
   const Buttons({
     Key? key,
     required this.textId,
-    required this.color,
-    required this.fontSize,
+    required this.onPositiveButtonAction,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final bloc = Provider.of<CreateMemeBloc>(context, listen: false);
-
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -120,7 +123,7 @@ class Buttons extends StatelessWidget {
         const SizedBox(width: 24.0),
         AppButton(
           onTap: () {
-            bloc.changeFontSettings(textId, color, fontSize);
+            onPositiveButtonAction();
             Navigator.of(context).pop();
           },
           text: 'Save',

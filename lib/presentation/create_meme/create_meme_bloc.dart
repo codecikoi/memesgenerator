@@ -104,6 +104,7 @@ class CreateMemeBloc {
     final String textId,
     final Color color,
     final double fontSize,
+    final FontWeight fontWeight,
   ) {
     final copiedList = [...memeTextsSubject.value];
     final oldMemeText =
@@ -113,7 +114,7 @@ class CreateMemeBloc {
     }
     copiedList.remove(oldMemeText);
     copiedList.add(
-      oldMemeText.copyWithChangedFontSettings(color, fontSize),
+      oldMemeText.copyWithChangedFontSettings(color, fontSize, fontWeight),
     );
     memeTextsSubject.add(copiedList);
   }
