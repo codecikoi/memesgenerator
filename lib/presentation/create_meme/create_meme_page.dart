@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memesgenerator/presentation/create_meme/font_settings_bottom_sheet.dart';
 import 'package:memesgenerator/presentation/create_meme/models/meme_text_with_offset.dart';
 import 'package:memesgenerator/presentation/widgets/app_text_button.dart';
 import 'package:provider/provider.dart';
@@ -270,13 +271,68 @@ class BottomMemeText extends StatelessWidget {
         height: 48,
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         alignment: Alignment.centerLeft,
-        child: Text(
-          item.memeText.text,
-          style: const TextStyle(
-            fontSize: 16,
-            color: AppColors.darkGrey,
-          ),
+        child: Row(
+          children: [
+            const SizedBox(width: 16.0),
+            Expanded(
+              child: Text(
+                item.memeText.text,
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: AppColors.darkGrey,
+                ),
+              ),
+            ),
+            const SizedBox(width: 4.0),
+            BottomMemeTextAction(onTap:  () {
+              showMoodalBottomSheet(
+                context: context,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(24),
+                  ),
+                ),
+                builder: (context) {
+                  return Provider.value(value: bloc, child: FontSettingBottomSheet(memeText: item.memeText),
+                  );
+                },
+              );
+            }, icon: Icons.font_download_outlined,),
+            const SizedBox(width: 4),
+            BottomMemeTextAction(
+              icon: Icons.delete_forever_outlined,
+              onTap:  () {
+                bloc.deleteMemeText(item.memeText.id);
+              },
+            ),
+            const SizedBox(width: 4),
+          ],
         ),
+      ),
+    );
+  }
+}
+
+class BottomMemeTextAction extends StatelessWidget {
+  const BottomMemeTextAction({
+    Key? key,
+    required this.onTap,
+    required this.icon,
+  }) : super(key: key);
+
+  final VoidCallback onTap;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final bloc = Provider.of<CreateMemeBloc>(context, listen: false);
+
+    return GestureDetector(
+      onTap: onTap,
+      },
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Icon(icon),
       ),
     );
   }

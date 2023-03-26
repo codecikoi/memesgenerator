@@ -271,4 +271,8 @@ class CreateMemeBloc {
     existentMemeSubscription?.cancel();
     shareMemeSubscription?.cancel();
   }
+
+  void deleteMemeText(final String textId) {
+
+  }
 }
