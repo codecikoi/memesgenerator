@@ -118,6 +118,12 @@ class CreateMemeBloc {
     memeTextsSubject.add(copiedList);
   }
 
+  void deleteMemeText(final String textId) {
+    final updatedMemeTexts = [...memeTextsSubject.value];
+    updatedMemeTexts.removeWhere((memeText) => memeText.id == textId);
+    memeTextsSubject.add(updatedMemeTexts);
+  }
+
   void saveMeme() {
     final memeTexts = memeTextsSubject.value;
     final memeTextOffsets = memeTextOffsetsSubject.value;
@@ -134,7 +140,7 @@ class CreateMemeBloc {
         id: memeText.id,
         text: memeText.text,
         position: position,
-        fontSize: memeText.fontSize,
+        fontSize: memeText.fontWeight,
         color: memeText.color,
       );
     }).toList();
@@ -270,9 +276,5 @@ class CreateMemeBloc {
     saveMemeSubscription?.cancel();
     existentMemeSubscription?.cancel();
     shareMemeSubscription?.cancel();
-  }
-
-  void deleteMemeText(final String textId) {
-
   }
 }
