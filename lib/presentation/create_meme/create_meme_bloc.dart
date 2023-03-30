@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
+import 'package:flutter/foundation.dart';
 import 'package:memesgenerator/data/models/meme.dart';
 import 'package:memesgenerator/data/models/text_with_position.dart';
 import 'package:memesgenerator/data/repositories/memes_repository.dart';
@@ -44,6 +45,30 @@ class CreateMemeBloc {
     memePathSubject.add(selectedMemePath);
     _subscribeToNewMemeTextOffset();
     _subscribeToExistentMeme();
+  }
+
+  Future<bool> isAllSaved() async {
+    final savedMeme = await MemesRepository.getInstance().getMeme(id);
+    if (savedMeme == null) {
+      return false;
+    }
+    final savedMemeTexts = savedMeme.texts.map((textWithPosition) {
+      return MemeText.createFromTextWithPosition(textWithPosition);
+    }).toList();
+
+    final savedMemeTextOffsets = savedMeme.texts.map((textWithPosition) {
+      return MemeTextOffset(
+        id: textWithPosition.id,
+        offset: Offset(
+          textWithPosition.position.left,
+          textWithPosition.position.top,
+        ),
+      );
+    }).toList();
+    return const DeepCollectionEquality.unordered()
+            .equals(savedMemeTexts, memeTextsSubject.value) &&
+        const DeepCollectionEquality.unordered()
+            .equals(savedMemeTextOffsets, memeTextsSubject.value);
   }
 
   void _subscribeToExistentMeme() {
