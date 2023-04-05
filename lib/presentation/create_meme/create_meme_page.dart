@@ -46,7 +46,7 @@ class _CreateMemePageState extends State<CreateMemePage> {
           final allSaved = await bloc.isAllSaved();
            (allSaved) {
             return true;
-          }
+          };
           final goBack = await showConfirmationExitTextDialog(context);
           return goBack ?? false;
         },
