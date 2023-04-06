@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:memesgenerator/presentation/create_meme/create_meme_bloc.dart';
 import 'package:memesgenerator/presentation/main/memes_with_docs_path.dart';
+import 'package:memesgenerator/presentation/main/models/template_full.dart';
 import 'package:memesgenerator/resources/app_colors.dart';
 import 'package:provider/provider.dart';
 import '../../data/models/meme.dart';
@@ -94,7 +95,7 @@ class CreateMemeFab extends StatelessWidget {
         }
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (_) => const CreateMemePage(
+            builder: (_) => CreateMemePage(
               selectedMemePath: selectedMemePath,
             ),
           ),
@@ -149,7 +150,10 @@ class CreatedMemesGrid extends StatelessWidget {
           crossAxisSpacing: 8,
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
           children: items.map((item) {
-            return GridItem(meme: item, docsPath, docsPath,);
+            return MemeGridItem(
+              meme: item,
+              docsPath: docsPath,
+            );
           }).toList(),
         );
       },
@@ -157,11 +161,11 @@ class CreatedMemesGrid extends StatelessWidget {
   }
 }
 
-class GridItem extends StatelessWidget {
+class MemeGridItem extends StatelessWidget {
   final String docsPath;
   final Meme meme;
 
-  const GridItem({
+  const MemeGridItem({
     Key? key,
     required this.docsPath,
     required this.meme,
@@ -206,18 +210,49 @@ class TemplatesGrid extends StatelessWidget {
         if (!snapshot.hasData) {
           return const SizedBox.shrink();
         }
-        final items = snapshot.requireData.memes;
-        final docsPath = snapshot.requireData.docsPath;
+        final templates = snapshot.requireData.memes;
         return GridView.extent(
           maxCrossAxisExtent: 180,
           mainAxisSpacing: 8,
           crossAxisSpacing: 8,
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-          children: items.map((item) {
-            return GridItem(meme: item, docsPath, docsPath);
+          children: templates.map((template) {
+            return TemplateGridItem(template: template);
           }).toList(),
         );
       },
+    );
+  }
+}
+
+class TemplateGridItem extends StatelessWidget {
+  final TemplateFull template;
+
+  const TemplateGridItem({
+    Key? key,
+    required this.template,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final imageFile = File(template.fullImagePath);
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => CreateMemePage(
+              selectedMemePath: template.fullImagePath,
+            ),
+          ),
+        );
+      },
+      child: Container(
+        alignment: Alignment.centerLeft,
+        decoration: BoxDecoration(
+            border: Border.all(color: AppColors.darkGrey, width: 1)),
+        child:
+            imageFile.existsSync() ? Image.file(imageFile) : Text(template.id),
+      ),
     );
   }
 }

@@ -42,7 +42,7 @@ class SaveMemeInteractor {
     return MemesRepository.getInstance().addToMemes(meme);
   }
 
-  Future<void> createNewFile(final String imagePath) async {
+  Future<Object> createNewFile(final String imagePath) async {
     final docsPath = await getApplicationDocumentsDirectory();
     final memePath =
         "${docsPath.absolute.path}${Platform.pathSeparator}$memesPathName";
@@ -60,42 +60,40 @@ class SaveMemeInteractor {
     final newImagePath = "$memePath${Platform.pathSeparator}$imageName";
     final tempFile = File(imagePath);
     if (oldFileWithTheSameName == null) {
+      // файлов с таким названием нет, сохраняем файл в документы
+
       await tempFile.copy(newImagePath);
-      return;
+      return imageName;
     }
 
     final oldFileLength = await (oldFileWithTheSameName as File).length();
     final newFileLength = await tempFile.length();
     if (oldFileLength == newFileLength) {
-      return;
-    }
-    return _createFileForSameNameButDifferentLength(
-      imageName: imageName,
-      tempFile: tempFile,
-      newImagePath: newImagePath,
-      memePath: memePath,
-    );
-  }
+      // такой файл уже существует, не сохраняем его заново
 
-  Future<void> _createFileForSameNameButDifferentLength({
-    required final String imageName,
-    required final File tempFile,
-    required final String newImagePath,
-    required final String memePath,
-  }) async {
+      return imageName;
+    }
     final indexOfLastDot = imageName.lastIndexOf(".");
     if (indexOfLastDot == -1) {
+      // у файла нет расширения, сохраняем файл в документы
+
       await tempFile.copy(newImagePath);
-      return;
+      return imageName;
     }
     final extension = imageName.substring(indexOfLastDot);
     final imageNameWithoutExtension = imageName.substring(0, indexOfLastDot);
     final indexOfLastUnderscore = imageNameWithoutExtension.lastIndexOf("_");
     if (indexOfLastUnderscore == -1) {
+      // файл с таким именем есть, но с дургим размером
+      // суффик не является числом
+      // сохраняем файл в документы и добавляем суфикс "_1"
+
+      final newImageName = '${imageNameWithoutExtension}_1$extension';
+
       final correctedNewImagePath =
-          "$memePath${Platform.pathSeparator}${imageNameWithoutExtension}_1$extension";
+          "$memePath${Platform.pathSeparator}$newImageName";
       await tempFile.copy(correctedNewImagePath);
-      return;
+      return newImageName;
     }
 
     final suffixNumberString =
@@ -104,16 +102,23 @@ class SaveMemeInteractor {
     final suffixNumber = int.tryParse(suffixNumberString);
 
     if (suffixNumber == null) {
+      // файл с таким именем есть, но с дургим размером
+      // увеличивам число в суффиксе и сохраняем файл в документы и добавляем суфикс "_1"
+
+      final newImageName = '${imageNameWithoutExtension}_1$extension';
       final correctedNewImagePath =
-          "$memePath${Platform.pathSeparator}${imageNameWithoutExtension}_1$extension";
+          "$memePath${Platform.pathSeparator}$newImageName";
       await tempFile.copy(correctedNewImagePath);
-    } else {
-      final imageNameWithoutSuffix =
-          imageNameWithoutExtension.substring(0, indexOfLastUnderscore);
-      final correctedNewImagePath =
-          "$memePath${Platform.pathSeparator}${imageNameWithoutSuffix}_${suffixNumber + 1}$extension";
-      await tempFile.copy(correctedNewImagePath);
+      return newImageName;
     }
+    final imageNameWithoutSuffix =
+        imageNameWithoutExtension.substring(0, indexOfLastUnderscore);
+    final newImageName =
+        '${imageNameWithoutSuffix}_${suffixNumber + 1}$extension';
+    final correctedNewImagePath =
+        "$memePath${Platform.pathSeparator}$newImageName";
+    await tempFile.copy(correctedNewImagePath);
+    return newImageName;
   }
 
   String _getFileNameByPath(String imagePath) =>
