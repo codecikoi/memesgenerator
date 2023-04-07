@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:memesgenerator/presentation/create_meme/create_meme_bloc.dart';
+import 'package:memesgenerator/presentation/easter_egg/easter_egg_page.dart';
 import 'package:memesgenerator/presentation/main/memes_with_docs_path.dart';
 import 'package:memesgenerator/presentation/main/models/template_full.dart';
 import 'package:memesgenerator/resources/app_colors.dart';
@@ -43,9 +44,18 @@ class _MainPageState extends State<MainPage> {
               centerTitle: true,
               backgroundColor: AppColors.lemon,
               foregroundColor: AppColors.darkGrey,
-              title: Text(
-                'Memesgenerator',
-                style: GoogleFonts.seymourOne(fontSize: 24),
+              title: GestureDetector(
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const EasterEggPage(),
+                    ),
+                  );
+                },
+                child: Text(
+                  'Memesgenerator',
+                  style: GoogleFonts.seymourOne(fontSize: 24),
+                ),
               ),
               bottom: TabBar(
                 labelColor: AppColors.darkGrey,

@@ -15,7 +15,7 @@ class ScreenshotInteractor {
     final image = await controller.capture();
 
     if (image == null) {
-      print('Error. Cant get image from screenshot controller');
+      print('Error. Cant get images from screenshot controller');
       return;
     }
     final tempDocs = await getTemporaryDirectory();
@@ -31,7 +31,7 @@ class ScreenshotInteractor {
     final image = await controller.capture();
 
     if (image == null) {
-      print('Error. Cant get image from screenshot controller');
+      print('Error. Cant get images from screenshot controller');
       return;
     }
     final tempDocs = await getApplicationDocumentsDirectory();
