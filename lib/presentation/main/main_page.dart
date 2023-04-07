@@ -83,7 +83,7 @@ class CreateMemeFab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bloc = Provider.of<CreateMemeBloc>(context, listen: false);
+    final bloc = Provider.of<MainBloc>(context, listen: false);
     return FloatingActionButton.extended(
       backgroundColor: AppColors.fuchsia,
       icon: const Icon(Icons.add, color: Colors.white),
