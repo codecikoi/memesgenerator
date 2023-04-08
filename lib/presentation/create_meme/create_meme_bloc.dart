@@ -166,8 +166,9 @@ class CreateMemeBloc {
         id: memeText.id,
         text: memeText.text,
         position: position,
-        fontSize: memeText.fontWeight,
+        fontSize: memeText.fontSize,
         color: memeText.color,
+        fontWeight: memeText.fontWeight,
       );
     }).toList();
 

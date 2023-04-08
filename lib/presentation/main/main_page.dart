@@ -194,16 +194,85 @@ class MemeGridItem extends StatelessWidget {
           ),
         );
       },
-      child: Container(
-        alignment: Alignment.centerLeft,
-        decoration: BoxDecoration(
-            border: Border.all(color: AppColors.darkGrey, width: 1)),
-        child: imageFile.existsSync()
-            ? Image.file(
-                File("$docsPath${Platform.pathSeparator}${meme.id}.png"),
-              )
-            : Text(meme.id),
+      child: Stack(
+        children: [
+          Container(
+            alignment: Alignment.centerLeft,
+            decoration: BoxDecoration(
+                border: Border.all(color: AppColors.darkGrey, width: 1)),
+            child: imageFile.existsSync()
+                ? Image.file(
+                    File("$docsPath${Platform.pathSeparator}${meme.id}.png"),
+                  )
+                : Text(meme.id),
+          ),
+           Positioned(
+            bottom: 4,
+            right: 4,
+            child: DeleteButton(memeId: meme.id),
+          ),
+        ],
       ),
+    );
+  }
+}
+
+class DeleteButton extends StatelessWidget {
+
+  final String memeId;
+
+  const DeleteButton({
+    Key? key, required this.memeId,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final bloc = Provider.of<MainBloc>(context, listen: false);
+    return GestureDetector(
+      onTap: () async {
+        final delete = await showConfirmationDeleteDialog(context) ?? false;
+        if (delete) {
+          bloc.deleteMeme(memeId);
+        }
+      },
+      child: Container(
+        margin: const EdgeInsets.all(4),
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: AppColors.darkGrey38,
+          shape: BoxShape.circle,
+        ),
+        child: const Icon(
+          Icons.delete_outline,
+          size: 24,
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+
+  Future<bool?> showConfirmationDeleteDialog(BuildContext context) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Delete meme?'),
+          actionsPadding: const EdgeInsets.symmetric(horizontal: 16),
+          content: const Text('Meme will be deleted forever'),
+          actions: [
+            AppButton(
+              onTap: () => Navigator.of(context).pop(false),
+              text: 'Cancel',
+              color: AppColors.darkGrey,
+            ),
+            AppButton(
+              onTap: () => Navigator.of(context).pop(true),
+              text: 'Delete',
+              color: Colors.transparent,
+            ),
+          ],
+        );
+      },
     );
   }
 }

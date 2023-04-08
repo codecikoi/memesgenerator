@@ -49,5 +49,9 @@ class MainBloc {
     return imagePath;
   }
 
+  void deleteMeme(final String memeId) {
+    print('deleted');
+  }
+
   void dispose() {}
 }
