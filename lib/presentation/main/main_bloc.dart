@@ -29,7 +29,7 @@ class MainBloc {
 
   Stream<List<TemplateFull>> observeTemplates() {
     return Rx.combineLatest2<List<Template>, Directory, List<TemplateFull>>(
-        TemplatesRepository.getInstance().observeTemplates(),
+        TemplatesRepository.getInstance().observeItems(),
         getApplicationDocumentsDirectory().asStream(),
         (templates, docsDirectory) {
       return templates.map((template) {
@@ -58,7 +58,7 @@ class MainBloc {
   }
 
   void deleteTemplate(final String templateId) {
-    TemplatesRepository.getInstance().removeFromTemplates(templateId);
+    TemplatesRepository.getInstance().removeFromItemsById(templateId);
   }
 
   void dispose() {}
