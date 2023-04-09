@@ -4,12 +4,12 @@ import 'package:memesgenerator/presentation/create_meme/models/meme_text_with_of
 import 'package:memesgenerator/presentation/widgets/app_text_button.dart';
 import 'package:provider/provider.dart';
 import 'package:screenshot/screenshot.dart';
-import 'package:uuid/uuid.dart';
 import 'create_meme_bloc.dart';
 import '../../resources/app_colors.dart';
 import 'meme_text_on_canvas.dart';
 import 'models/meme_text.dart';
 import 'models/meme_text_with_selection.dart';
+import 'dart:io';
 
 class CreateMemePage extends StatefulWidget {
   final String? id;
@@ -32,7 +32,7 @@ class _CreateMemePageState extends State<CreateMemePage> {
   void initState() {
     super.initState();
     bloc = CreateMemeBloc(
-      id: widget.id ?? const Uuid().v4(),
+      id: widget.id,
       selectedMemePath: widget.selectedMemePath,
     );
   }
@@ -44,9 +44,9 @@ class _CreateMemePageState extends State<CreateMemePage> {
       child: WillPopScope(
         onWillPop: () async {
           final allSaved = await bloc.isAllSaved();
-          (allSaved) {
+          if (allSaved) {
             return true;
-          };
+          }
           final goBack = await showConfirmationExitTextDialog(context);
           return goBack ?? false;
         },
@@ -128,7 +128,6 @@ class _AnimatedIconButtonState extends State<AnimatedIconButton> {
 
   @override
   Widget build(BuildContext context) {
-    final bloc = Provider.of<CreateMemeBloc>(context, listen: false);
     return GestureDetector(
       onTap: () {
         widget.onTap;
@@ -321,7 +320,7 @@ class BottomMemeText extends StatelessWidget {
             const SizedBox(width: 4.0),
             BottomMemeTextAction(
               onTap: () {
-                showMoodalBottomSheet(
+                showModalBottomSheet(
                   context: context,
                   shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.vertical(
@@ -365,8 +364,6 @@ class BottomMemeTextAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bloc = Provider.of<CreateMemeBloc>(context, listen: false);
-
     return GestureDetector(
       onTap: onTap,
       child: Padding(

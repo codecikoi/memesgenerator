@@ -176,7 +176,7 @@ class CreateMemeBloc {
         .saveMeme(
           id: id,
           textWithPositions: textsWithPositions,
-          screenshotController: screenshotControllerSubject.value0,
+          screenshotController: screenshotControllerSubject.value,
           imagePath: memePathSubject.value,
         )
         .asStream()
@@ -233,8 +233,12 @@ class CreateMemeBloc {
     if (index == -1) {
       return;
     }
+    final oldMemeText = copiedList[index];
     copiedList.removeAt(index);
-    copiedList.insert(index, MemeText(id: id, text: text));
+    copiedList.insert(
+      index,
+      oldMemeText.copyWithChangedText(text),
+    );
     memeTextsSubject.add(copiedList);
   }
 
@@ -266,8 +270,7 @@ class CreateMemeBloc {
           return element.id == memeText.id;
         });
         return MemeTextWithOffset(
-          id: memeText.id,
-          text: memeText.text,
+          memeText: memeText,
           offset: memeTextOffset?.offset,
         );
       }).toList();

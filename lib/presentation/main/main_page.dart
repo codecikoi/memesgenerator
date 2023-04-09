@@ -19,13 +19,23 @@ class MainPage extends StatefulWidget {
   State<MainPage> createState() => _MainPageState();
 }
 
-class _MainPageState extends State<MainPage> {
+class _MainPageState extends State<MainPage>
+    with SingleTickerProviderStateMixin {
   late MainBloc bloc;
+  late TabController tabController;
+
+  double tabIndex = 0;
 
   @override
   void initState() {
     super.initState();
     bloc = MainBloc();
+
+    tabController = TabController(length: 2, vsync: this);
+
+    tabController.animation!.addListener(() {
+      setState(() => tabIndex = tabController.animation!.value);
+    });
   }
 
   @override
@@ -58,6 +68,7 @@ class _MainPageState extends State<MainPage> {
                 ),
               ),
               bottom: TabBar(
+                controller: tabController,
                 labelColor: AppColors.darkGrey,
                 indicatorColor: AppColors.fuchsia,
                 indicatorWeight: 3,
@@ -67,12 +78,22 @@ class _MainPageState extends State<MainPage> {
                 ],
               ),
             ),
-            floatingActionButton: const CreateMemeFab(),
+            floatingActionButton: tabIndex <= 0.5
+                ? AnimatedScale(
+                    scale: 1 - tabIndex / 0.5,
+                    duration: const Duration(milliseconds: 100),
+                    child: const CreateMemeFab(),
+                  )
+                : AnimatedScale(
+                    scale: (tabIndex - 0.5) / 0.5,
+                    duration: const Duration(milliseconds: 100),
+                    child: const CreateTemplateFab(),
+                  ),
             backgroundColor: Colors.white,
             body: const TabBarView(
               children: [
                 SafeArea(child: CreatedMemesGrid()),
-                SafeArea(child: CreatedMemesGrid()),
+                SafeArea(child: TemplatesGrid()),
               ],
             ),
           ),
@@ -97,7 +118,34 @@ class CreateMemeFab extends StatelessWidget {
     return FloatingActionButton.extended(
       backgroundColor: AppColors.fuchsia,
       icon: const Icon(Icons.add, color: Colors.white),
-      label: const Text('Create'),
+      label: const Text('Meme'),
+      onPressed: () async {
+        final selectedMemePath = await bloc.selectMeme();
+        if (selectedMemePath == null) {
+          return;
+        }
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => CreateMemePage(
+              selectedMemePath: selectedMemePath,
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class CreateTemplateFab extends StatelessWidget {
+  const CreateTemplateFab({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final bloc = Provider.of<MainBloc>(context, listen: false);
+    return FloatingActionButton.extended(
+      backgroundColor: AppColors.fuchsia,
+      icon: const Icon(Icons.add, color: Colors.white),
+      label: const Text('Template'),
       onPressed: () async {
         final selectedMemePath = await bloc.selectMeme();
         if (selectedMemePath == null) {

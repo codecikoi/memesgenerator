@@ -258,8 +258,8 @@ class _FontSizeSliderState extends State<FontSizeSlider> {
 }
 
 class FontWeightSlider extends StatefulWidget {
-  final ValueChanged<double> changeFontWeight;
-  final double initialFontWeight;
+  final ValueChanged<FontWeight> changeFontWeight;
+  final FontWeight initialFontWeight;
 
   const FontWeightSlider({
     Key? key,
