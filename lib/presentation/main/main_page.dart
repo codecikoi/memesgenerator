@@ -183,6 +183,7 @@ class MemeGridItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bloc = Provider.of<MainBloc>(context, listen: false);
     final imageFile = File('$docsPath${Platform.pathSeparator}${meme.id}.png');
     return GestureDetector(
       onTap: () {
@@ -206,10 +207,13 @@ class MemeGridItem extends StatelessWidget {
                   )
                 : Text(meme.id),
           ),
-           Positioned(
+          Positioned(
             bottom: 4,
             right: 4,
-            child: DeleteButton(memeId: meme.id),
+            child: DeleteButton(
+              onDeleteAction: () => bloc.deleteMeme(meme.id),
+              itemName: 'meme',
+            ),
           ),
         ],
       ),
@@ -218,21 +222,22 @@ class MemeGridItem extends StatelessWidget {
 }
 
 class DeleteButton extends StatelessWidget {
-
-  final String memeId;
+  final VoidCallback onDeleteAction;
+  final String itemName;
 
   const DeleteButton({
-    Key? key, required this.memeId,
+    Key? key,
+    required this.onDeleteAction,
+    required this.itemName,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final bloc = Provider.of<MainBloc>(context, listen: false);
     return GestureDetector(
       onTap: () async {
         final delete = await showConfirmationDeleteDialog(context) ?? false;
         if (delete) {
-          bloc.deleteMeme(memeId);
+          onDeleteAction();
         }
       },
       child: Container(
@@ -256,9 +261,9 @@ class DeleteButton extends StatelessWidget {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Delete meme?'),
+          title: Text('Delete $itemName?'),
           actionsPadding: const EdgeInsets.symmetric(horizontal: 16),
-          content: const Text('Meme will be deleted forever'),
+          content: Text('Selected $itemName will be deleted forever'),
           actions: [
             AppButton(
               onTap: () => Navigator.of(context).pop(false),
@@ -283,13 +288,13 @@ class TemplatesGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bloc = Provider.of<MainBloc>(context, listen: false);
-    return StreamBuilder<MemesWithDocsPath>(
-      stream: bloc.observeMemesWithDocsPath(),
+    return StreamBuilder<List<TemplateFull>>(
+      stream: bloc.observeTemplates(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const SizedBox.shrink();
         }
-        final templates = snapshot.requireData.memes;
+        final templates = snapshot.requireData;
         return GridView.extent(
           maxCrossAxisExtent: 180,
           mainAxisSpacing: 8,
@@ -314,6 +319,7 @@ class TemplateGridItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bloc = Provider.of<MainBloc>(context, listen: false);
     final imageFile = File(template.fullImagePath);
     return GestureDetector(
       onTap: () {
@@ -325,12 +331,26 @@ class TemplateGridItem extends StatelessWidget {
           ),
         );
       },
-      child: Container(
-        alignment: Alignment.centerLeft,
-        decoration: BoxDecoration(
-            border: Border.all(color: AppColors.darkGrey, width: 1)),
-        child:
-            imageFile.existsSync() ? Image.file(imageFile) : Text(template.id),
+      child: Stack(
+        children: [
+          Container(
+            alignment: Alignment.centerLeft,
+            decoration: BoxDecoration(
+              border: Border.all(color: AppColors.darkGrey, width: 1),
+            ),
+            child: imageFile.existsSync()
+                ? Image.file(imageFile)
+                : Text(template.id),
+          ),
+          Positioned(
+            bottom: 4,
+            right: 4,
+            child: DeleteButton(
+              onDeleteAction: () => bloc.deleteTemplate(template.id),
+              itemName: 'template',
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -50,7 +50,11 @@ class MainBloc {
   }
 
   void deleteMeme(final String memeId) {
-    print('deleted');
+    MemesRepository.getInstance().removeFromMemes(memeId);
+  }
+
+  void deleteTemplate(final String templateId) {
+    TemplatesRepository.getInstance().removeFromTemplates(templateId);
   }
 
   void dispose() {}
