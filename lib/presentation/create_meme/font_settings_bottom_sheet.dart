@@ -34,68 +34,69 @@ class _FontSettingBottomSheetState extends State<FontSettingBottomSheet> {
   @override
   Widget build(BuildContext context) {
     final bloc = Provider.of<CreateMemeBloc>(context, listen: false);
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        const SizedBox(height: 8.0),
-        Center(
-          child: Container(
-            height: 4,
-            width: 64,
-            decoration: BoxDecoration(
-              color: AppColors.darkGrey38,
-              borderRadius: BorderRadius.circular(2.0),
+    return SafeArea(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(height: 8.0),
+          Center(
+            child: Container(
+              height: 4,
+              width: 64,
+              decoration: BoxDecoration(
+                color: AppColors.darkGrey38,
+                borderRadius: BorderRadius.circular(2.0),
+              ),
             ),
           ),
-        ),
-        const SizedBox(height: 16.0),
-        MemeTextOnCanvas(
-          selected: true,
-          parentConstraints: const BoxConstraints.expand(),
-          padding: 8,
-          text: widget.memeText.text,
-          color: color,
-          fontSize: fontSize,
-          fontWeight: fontWeight,
-        ),
-        const SizedBox(height: 16.0),
-        FontSizeSlider(
-          initialFontSize: fontSize,
-          changeFontSize: (value) {
-            setState(() => fontSize = value);
-          },
-        ),
-        const SizedBox(height: 16.0),
-        ColorSelection(
-          changeColor: (color) {
-            setState(() => this.color = color);
-          },
-        ),
-        const SizedBox(height: 16.0),
-        FontWeightSlider(
-          initialFontWeight: fontWeight,
-          changeFontWeight: (value) {
-            setState(() => fontWeight = value);
-          },
-        ),
-        const SizedBox(height: 16.0),
-        const SizedBox(height: 36.0),
-        Align(
-          alignment: Alignment.centerRight,
-          child: Buttons(
-            textId: widget.memeText.id,
-            onPositiveButtonAction: () {
-              bloc.changeFontSettings(
-                widget.memeText.id,
-                color,
-                fontSize,
-                fontWeight,
-              );
+          const SizedBox(height: 16.0),
+          MemeTextOnCanvas(
+            selected: true,
+            parentConstraints: const BoxConstraints.expand(),
+            padding: 8,
+            text: widget.memeText.text,
+            color: color,
+            fontSize: fontSize,
+            fontWeight: fontWeight,
+          ),
+          const SizedBox(height: 16.0),
+          FontSizeSlider(
+            initialFontSize: fontSize,
+            changeFontSize: (value) {
+              setState(() => fontSize = value);
             },
           ),
-        ),
-        const SizedBox(height: 48.0),
-      ],
+          const SizedBox(height: 16.0),
+          ColorSelection(
+            changeColor: (color) {
+              setState(() => this.color = color);
+            },
+          ),
+          const SizedBox(height: 16.0),
+          FontWeightSlider(
+            initialFontWeight: fontWeight,
+            changeFontWeight: (value) {
+              setState(() => fontWeight = value);
+            },
+          ),
+          const SizedBox(height: 16.0),
+          Align(
+            alignment: Alignment.centerRight,
+            child: Buttons(
+              textId: widget.memeText.id,
+              onPositiveButtonAction: () {
+                bloc.changeFontSettings(
+                  widget.memeText.id,
+                  color,
+                  fontSize,
+                  fontWeight,
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 18.0),
+        ],
+      ),
     );
   }
 }
